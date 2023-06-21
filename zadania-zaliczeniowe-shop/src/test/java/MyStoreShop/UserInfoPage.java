@@ -1,0 +1,538 @@
+package MyStoreShop;
+
+import org.junit.Assert;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
+
+import java.time.Duration;
+import java.util.List;
+
+public class UserInfoPage {
+    private final WebDriver driver;
+//    private UserInfoPage userInfoPage;
+
+    @FindBy(xpath = "//a[@class='account']")
+    public WebElement userName;
+    @FindBy(id = "field-alias")
+    public WebElement aliasField;
+
+    @FindBy(id = "field-address1")
+    public WebElement addressField;
+
+    @FindBy(id = "field-city")
+    public WebElement cityField;
+
+    @FindBy(id = "field-postcode")
+    public WebElement zipCodeField;
+
+    @FindBy(name = "phone")
+    public WebElement phoneField;
+
+    // Konstruktor
+    public UserInfoPage(WebDriver driver) {
+        this.driver = driver;
+        PageFactory.initElements(driver, this);
+    }
+//    public void theUserLogsIntoTheirAccount() {
+//        userName.click();
+//    }
+    public void goToAddressSection() {
+        userName.click();
+        WebElement addressSection = driver.findElement(By.id("addresses-link"));
+        addressSection.click();
+
+
+        WebElement createNewAddress = driver.findElement(By.xpath("//span[text()='Create new address']"));
+        createNewAddress.click();
+    }
+
+    // Metoda wprowadzająca dane
+    public void enterAliasAddressCityZipCodeCountryAndPhone(String alias, String address, String city, String zipCode, String country, String phone) {
+        try {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+
+            // Wprowadź wartość do pola "alias"
+            aliasField.sendKeys(alias);
+
+            // Wprowadź wartość do pola "address"
+            addressField.sendKeys(address);
+
+            // Wprowadź wartość do pola "city"
+            cityField.sendKeys(city);
+
+            // Wprowadź wartość do pola "zip code"
+            zipCodeField.sendKeys(zipCode);
+
+            // Wprowadź wartość do pola "phone"
+            phoneField.sendKeys(phone);
+        } catch (NoSuchElementException e) {
+            System.out.println("Element not found: " + e.getMessage());
+        }
+
+    }
+
+    public void verifyAddress(String expectedAlias, String expectedAddress, String expectedCity, String expectedZipCode, String expectedCountry, String expectedPhone) {
+        // Pobierz wartości pól adresu
+        String actualAlias = aliasField.getAttribute("value");
+        String actualAddress = addressField.getAttribute("value");
+        String actualCity = cityField.getAttribute("value");
+        String actualZipCode = zipCodeField.getAttribute("value");
+        Select countryDropdown = new Select(driver.findElement(By.id("field-id_country")));
+        String actualCountry = countryDropdown.getFirstSelectedOption().getText();
+        String actualPhone = phoneField.getAttribute("value");
+
+        // Porównaj pobrane wartości z oczekiwanymi wartościami
+        Assert.assertEquals(actualAlias, expectedAlias, "Alias is incorrect");
+        Assert.assertEquals(actualAddress, expectedAddress, "Address is incorrect");
+        Assert.assertEquals(actualCity, expectedCity, "City is incorrect");
+        Assert.assertEquals(actualZipCode, expectedZipCode, "Zip code is incorrect");
+        Assert.assertEquals(actualCountry, expectedCountry, "Country is incorrect");
+        Assert.assertEquals(actualPhone, expectedPhone, "Phone number is incorrect");
+    }
+
+    public void iSaveAndCloseTheBrowser() {
+        // Zlokalizowanie elementu "Save"
+        WebElement saveButton = driver.findElement(By.xpath("//button[contains(text(),'Save')]"));
+        saveButton.click();
+
+        // Zlokalizowanie elementu "alert"
+        WebElement successMessage = driver.findElement(By.xpath("//article[@class='alert alert-success']")); //danger
+
+        // Zmiana treści komunikatu "alert"
+        String newMessage = "The address has been removed correctly";
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", successMessage, newMessage);
+
+        // Zmiana koloru tekstu na zielony i tła "alert"
+        jsExecutor.executeScript("arguments[0].style.color = 'green'", successMessage);
+        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+
+        // Mruganie przez 6 sekund "alert"
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime <= 6000) {
+            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", successMessage);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", successMessage);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        // Informacja o powodzeniu czynności
+        System.out.println("Czynność zakończona pomyślnie.");
+
+        driver.quit();
+    }
+    // Przejście do sekcji adresy
+    public void userNavigatesToTheAddressesSection() {
+        userName.click();
+        WebElement userInfo = driver.findElement(By.id("addresses-link"));
+        userInfo.click();
+    }
+
+    public void userDeletesTheAddedAddress() {
+
+        // Wyszukiwanie elementu w liście i klikamy na drugi czyli pierwszy :)
+        List<WebElement> deleteElement = driver.findElements(By.xpath("//span[text()='Delete']"));
+        deleteElement.get(1).click();
+
+//        // Czyszczenie pól formularza // Funkcja przed zmianami //
+//        aliasField.clear();
+//        addressField.clear();
+//        addressField.sendKeys(" ");
+//        cityField.clear();
+//        cityField.sendKeys(" ");
+//        zipCodeField.clear();
+//        zipCodeField.sendKeys(" ");
+//        phoneField.clear();
+
+    }
+    // Sprawdź czy adres został usunięty
+    public void checksIfTheAddressHasBeenDeleted() {
+
+        // Sprawdź, czy komunikat o powodzeniu jest wyświetlony
+        WebElement successDelAddress = driver.findElement(By.xpath("//article[@class='alert alert-success']"));
+
+        // Zmiana treści komunikatu "alert"
+        String newMessage = "The address has been removed correctly";
+        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", successDelAddress, newMessage);
+
+        // Zmiana koloru tekstu na zielony i tła "alert"
+        jsExecutor.executeScript("arguments[0].style.color = 'green'", successDelAddress);
+        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successDelAddress);
+
+        // Mruganie przez 6 sekund "alert"
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime <= 6000) {
+            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", successDelAddress);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", successDelAddress);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        // Informacja o powodzeniu czynności
+        System.out.println("Czynność zakończona pomyślnie.");
+    }
+
+    public void iSaveAndQuitTheBrowser(WebDriver driver) {
+        driver.quit();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        long startTime = System.currentTimeMillis();
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        while (System.currentTimeMillis() - startTime <= 6000) {
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", successDelAddress);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", successDelAddress);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        if (successDelAddress.isDisplayed()) {
+//            blinkElementBackground(successDelAddress);
+//            System.out.println("Adres został usunięty poprawnie");
+//            Assert.assertTrue("Test zaliczony: Adres został usunięty poprawnie", true);
+//        } else {
+//            System.out.println("Adres nie został usunięty");
+//            Assert.fail("Test niezaliczony: Adres nie został usunięty");
+//        }
+//    }
+//    private void blinkElementBackground(WebElement element) {
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        String originalBackgroundColor = element.getCssValue("background-color");
+//        String blinkColor = "green";
+//        int blinkDuration = 6000; // 6 sekund
+//        int blinkInterval = 500; // Interwał mrugania (0.5 sekundy)
+//
+//        // Ustalenie liczby iteracji mrugania
+//        int numberOfBlinks = blinkDuration / blinkInterval;
+//
+//        // Wykonanie mrugania
+//        for (int i = 0; i < numberOfBlinks; i++) {
+//            jsExecutor.executeScript("arguments[0].style.backgroundColor = '" + blinkColor + "'", element);
+//            sleep(blinkInterval);
+//            jsExecutor.executeScript("arguments[0].style.backgroundColor = '" + originalBackgroundColor + "'", element);
+//            sleep(blinkInterval);
+//        }
+//
+//    }
+//    private void sleep(int milliseconds) {
+//        try {
+//            Thread.sleep(milliseconds);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+
+
+
+//        // Zmiana treści komunikatu "alert"
+//        String newMessage = "The address has been removed correctly";
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", successDelAddress, newMessage);
+//
+//        // Zmiana koloru tekstu na zielony i tła "alert"
+////        jsExecutor.executeScript("arguments[0].style.color = 'green'", successDelAddress);
+////        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successDelAddress);
+//
+//        // Mruganie przez 6 sekund "alert"
+//        long startTime = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - startTime <= 6000) {
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", successDelAddress);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", successDelAddress);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+//
+//    public boolean isAddressDeletionConfirmed() {
+//        return false;
+////                // Informacja o powodzeniu czynności
+////        System.out.println("Czynność zakończona pomyślnie.");
+//
+//    }
+//}
+
+//
+
+
+
+
+
+
+
+//        // Zmiana treści komunikatu "alert"
+//        String newMessage = "Address has been correctly removed";
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", successMessage, newMessage);
+
+//        // Sprawdzenie, czy adres został usunięty
+//        String currentMessage = ((WebElement) successMessage).getText();
+////        String currentMessage = (String) jsExecutor.executeScript("return arguments[0].innerText", successMessage);
+//        boolean isAddressDeletetionConfirmed = currentMessage.equals(newMessage);
+////        boolean isAddressDeleted = successMessage.getText().equals(newMessage);
+//        if (isAddressDeletetionConfirmed) {
+//            System.out.println("Adres został pomyślnie usunięty.");
+//        } else {
+//            System.out.println("Adres nie został usunięty.");
+//        }
+//        // Informacja o powodzeniu czynności
+//        System.out.println("Czynność zakończona pomyślnie.");
+//
+//
+//
+//
+////        // Zmiana koloru tekstu na zielony i tła "alert"
+//        jsExecutor.executeScript("arguments[0].style.color = 'green'", successMessage);
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+//
+//        // Pętla zmieniająca kolor tła elementu
+//        long startTime = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - startTime <= 6000) {
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", successMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", successMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        // Sprawdzenie, czy adres został usunięty
+//        String currentMessage = successMessage.getText();
+////        String currentMessage = (String) jsExecutor.executeScript("return arguments[0].innerText", successMessage);
+//        boolean isAddressDeletetionConfirmed = currentMessage.equals(newMessage);
+////        boolean isAddressDeleted = successMessage.getText().equals(newMessage);
+//        if (isAddressDeletetionConfirmed) {
+//            System.out.println("Adres został pomyślnie usunięty.");
+//        } else {
+//            System.out.println("Adres nie został usunięty.");
+//        }
+//        // Informacja o powodzeniu czynności
+//        System.out.println("Czynność zakończona pomyślnie.");
+
+
+
+
+
+//    public WebElement getSuccessMessage() {
+//        // Znajdź element zawierający komunikat o powodzeniu
+//        WebElement successMessage = driver.findElement(By.xpath("xpath_do_elementu")); // Zastąp "xpath_do_elementu" właściwym wyrażeniem XPath
+//
+//        return successMessage;
+//    }
+//}
+
+
+
+//        // Mruganie tłem na zielono
+//        String originalBackgroundColor = successMessage.getCssValue("background-color");
+//        for (int i = 0; i < 6; i++) {
+//            jsExecutor.executeScript("arguments[0].style.backgroundColor = '" + originalBackgroundColor + "'", successMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
+//        // Zmiana koloru tekstu na zielony i tła
+//        jsExecutor.executeScript("arguments[0].style.color = 'green'", successMessage);
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+
+
+
+//        // Zlokalizowanie elementu "alert"
+//        WebElement successMessage = driver.findElement(By.xpath("//article[@class='alert alert-success']/ul/li"));
+//        // Zmiana treści komunikatu
+//        String newMessage = "The address has been removed correctly";
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", successMessage, newMessage);
+//        // Mruganie tłem na zielono
+//
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+//        // Zmiana koloru tekstu na zielony i tła
+//        jsExecutor.executeScript("arguments[0].style.color = 'green'", successMessage);
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", successMessage);
+
+
+//        // Sprawdzenie, czy adres został usunięty
+//        List<WebElement> addressElements = Message.findElements(By.xpath(".//li[text()='Address successfully deleted!']"));
+//        boolean isDeleted = !addressElements.isEmpty();
+//
+//        if (isDeleted) {
+//
+//            // Mruganie przez 10 sekund
+//            long startTime = System.currentTimeMillis();
+//            while (System.currentTimeMillis() - startTime <= 10000) {
+//                jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", Message);
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", Message);
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//            System.out.println("Adres został usunięty poprawnie.");
+//            System.out.println("Potwierdzenie usunięcia adresu.");
+//            // Address has been successfully deleted.
+//            // Confirmation of address deletion.
+//        } else {
+//            System.out.println("Adres nie został usunięty.");
+//            // Address has not been deleted.
+//        }
+//    }
+
+//            System.out.println("Adres został usunięty poprawnie.");
+//        } else {
+//            System.out.println("Adres nie został usunięty.");
+//        }
+//    }
+
+
+//    public void saveAndClose(WebDriver driver) {
+//
+//        driver.close();
+//    }
+//}
+
+//        // Zlokalizowanie elementu
+//        WebElement errorMessage = driver.findElement(By.xpath("//article[@class='alert alert-danger']"));
+//        // Zmiana treści komunikatu
+//        String newMessage = "The address has been removed correctly";
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", errorMessage, newMessage);
+//
+//        // Zmiana koloru tekstu na zielony i tła
+//        jsExecutor.executeScript("arguments[0].style.color = 'green'", errorMessage);
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", errorMessage);
+
+//        List<WebElement> addressElements = driver.findElements(By.xpath("//*[@id='notifications']/div/article/ul/li"));
+//        if (addressElements.size() == 0) {
+//            System.out.println("Adres został usunięty poprawnie");
+//        } else {
+//            System.out.println("Adres nie został usunięty");
+//        }
+
+//        // Zmiana treści komunikatu "alert"
+//        String newMessage = "The address has been removed correctly";
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", errorMessage, newMessage);
+//
+//        // Zmiana koloru tekstu na zielony i tła "alert"
+//        jsExecutor.executeScript("arguments[0].style.color = 'green'", errorMessage);
+//        jsExecutor.executeScript("arguments[0].style.backgroundColor = 'lightgreen'", errorMessage);
+//
+//        // Mruganie przez 6 sekund "alert"
+//        long startTime = System.currentTimeMillis();
+//        while (System.currentTimeMillis() - startTime <= 6000) {
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'hidden'", errorMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            jsExecutor.executeScript("arguments[0].style.visibility = 'visible'", errorMessage);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        // Informacja o powodzeniu czynności
+//        System.out.println("Czynność zakończona pomyślnie.");
+//    }
+//    private boolean isAddressDeletionConfirmed() {
+//        List<WebElement> addressElements = driver.findElements(By.xpath("//div[contains(@class, 'addresses')]//div[contains(@class, 'address')]"));
+//        return addressElements.size() == 0;
+//    }
+
+//Zlokalizowanie elementu
+//        WebElement element = driver.findElement(By.xpath("//option[@value='17' and contains(text(), 'United Kingdom')]"));
+//        String text = element.getText();
+//        // Usuwanie tekstu "United Kingdom" lub podstawienie innego napisu
+//        String modifiedText = text.replace("United Kingdom", "Droga Mleczna");
+//        // Aktualizowanie tekstu w elemencie
+//        jsExecutor.executeScript("arguments[0].innerText = arguments[1]", element, modifiedText);
+
+//        WebElement successDelAddress = driver.findElement(By.xpath("//li[text()='Address successfully deleted!']")); //sciezka jest ok
+//        if (successDelAddress.isDisplayed()) {
+//            System.out.println("Adres został usunięty poprawnie");
+//        } else {
+//            System.out.println("Adres nie został usunięty");
+//        }
+//    }
+//    private boolean isAddressDeletionConfirmed() {
+//        List<WebElement> successDelAddress = driver.findElements(By.xpath("//div[contains(@class, 'addresses')]//div[contains(@class, 'address')]"));
+//        return successDelAddress.size() == 0;
+//    }
