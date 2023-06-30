@@ -1,7 +1,10 @@
 package MyStoreShop;
 
 import org.junit.Assert;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.Select;
@@ -11,11 +14,10 @@ import java.util.List;
 
 public class UserInfoPage {
     private final WebDriver driver;
-//    private UserInfoPage userInfoPage;
 
     @FindBy(xpath = "//a[@class='account']")
     public WebElement userName;
-    @FindBy(id = "field-alias")
+    @FindBy(xpath = "//input[@id='field-alias']")
     public WebElement aliasField;
 
     @FindBy(id = "field-address1")
@@ -29,15 +31,15 @@ public class UserInfoPage {
 
     @FindBy(name = "phone")
     public WebElement phoneField;
+    @FindBy(xpath = "//button[contains(text(),'Save')]")
+    public WebElement saveButton;
 
     // Konstruktor
     public UserInfoPage(WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
-//    public void theUserLogsIntoTheirAccount() {
-//        userName.click();
-//    }
+    // Przechodzę do sekcji adresy
     public void goToAddressSection() {
         userName.click();
         WebElement addressSection = driver.findElement(By.id("addresses-link"));
@@ -50,31 +52,32 @@ public class UserInfoPage {
 
     // Metoda wprowadzająca dane
     public void enterAliasAddressCityZipCodeCountryAndPhone(String alias, String address, String city, String zipCode, String country, String phone) {
-        try {
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
 
-            // Wprowadź wartość do pola "alias"
-            aliasField.sendKeys(alias);
+        // Wypełnij pola formularza
+        aliasField.clear();
+        aliasField.sendKeys(alias);
+        addressField.clear();
+        addressField.sendKeys(address);
+        cityField.clear();
+        cityField.sendKeys(city);
+        zipCodeField.clear();
+        zipCodeField.sendKeys(zipCode);
+//        Select countryDropdown = new Select(driver.findElement(By.id("id_country")));
+//        countryDropdown.selectByVisibleText(country);
+        phoneField.clear();
+        phoneField.sendKeys(phone);
 
-            // Wprowadź wartość do pola "address"
-            addressField.sendKeys(address);
-
-            // Wprowadź wartość do pola "city"
-            cityField.sendKeys(city);
-
-            // Wprowadź wartość do pola "zip code"
-            zipCodeField.sendKeys(zipCode);
-
-            // Wprowadź wartość do pola "phone"
-            phoneField.sendKeys(phone);
-        } catch (NoSuchElementException e) {
-            System.out.println("Element not found: " + e.getMessage());
-        }
+        // Zlokalizowanie elementu "Save"
+        saveButton.click();
 
     }
 
-    public void verifyAddress(String expectedAlias, String expectedAddress, String expectedCity, String expectedZipCode, String expectedCountry, String expectedPhone) {
-        // Pobierz wartości pól adresu
+    public void checksIfTheAddedAddressIsCorrectWithAliasAddressCityZipCodeCountryAndPhone(String expectedAlias, String expectedAddress, String expectedCity, String expectedZipCode, String expectedCountry, String expectedPhone) {
+        List<WebElement> updateElement = driver.findElements(By.xpath("//span[contains(text(), 'Update')]"));
+        updateElement.get(1).click();
+
+        // Pobierz wartości pól z formularza
         String actualAlias = aliasField.getAttribute("value");
         String actualAddress = addressField.getAttribute("value");
         String actualCity = cityField.getAttribute("value");
@@ -83,18 +86,27 @@ public class UserInfoPage {
         String actualCountry = countryDropdown.getFirstSelectedOption().getText();
         String actualPhone = phoneField.getAttribute("value");
 
+//        // Pobierz wartości pól formularza
+//        String actualAlias = driver.findElement(By.xpath("//input[@id='field-alias']")).getAttribute("value");
+//        String actualAddress = driver.findElement(By.id("field-address1")).getAttribute("value");
+//        String actualCity = driver.findElement(By.id("field-city")).getAttribute("value");
+//        String actualZipCode = driver.findElement(By.id("field-postcode")).getAttribute("value");
+//        Select countryDropdown = new Select(driver.findElement(By.id("field-id_country")));
+//        String actualCountry = countryDropdown.getFirstSelectedOption().getText();
+//        String actualPhone = driver.findElement(By.name("phone")).getAttribute("value");
+
+
         // Porównaj pobrane wartości z oczekiwanymi wartościami
-        Assert.assertEquals(actualAlias, expectedAlias, "Alias is incorrect");
-        Assert.assertEquals(actualAddress, expectedAddress, "Address is incorrect");
-        Assert.assertEquals(actualCity, expectedCity, "City is incorrect");
-        Assert.assertEquals(actualZipCode, expectedZipCode, "Zip code is incorrect");
-        Assert.assertEquals(actualCountry, expectedCountry, "Country is incorrect");
-        Assert.assertEquals(actualPhone, expectedPhone, "Phone number is incorrect");
+        Assert.assertEquals("Expected Alias does not match actual value", actualAlias, expectedAlias);
+        Assert.assertEquals("Expected Address does not match actual value", actualAddress.trim(), expectedAddress.trim());
+        Assert.assertEquals("Expected City does not match actual value", actualCity, expectedCity);
+        Assert.assertEquals("Expected Zip Code does not match actual value", actualZipCode, expectedZipCode);
+        Assert.assertEquals("Expected Country does not match actual value", actualCountry, expectedCountry);
+        Assert.assertEquals("Expected Phone does not match actual value", actualPhone, expectedPhone);
     }
 
     public void iSaveAndCloseTheBrowser() {
         // Zlokalizowanie elementu "Save"
-        WebElement saveButton = driver.findElement(By.xpath("//button[contains(text(),'Save')]"));
         saveButton.click();
 
         // Zlokalizowanie elementu "alert"
@@ -143,16 +155,6 @@ public class UserInfoPage {
         List<WebElement> deleteElement = driver.findElements(By.xpath("//span[text()='Delete']"));
         deleteElement.get(1).click();
 
-//        // Czyszczenie pól formularza // Funkcja przed zmianami //
-//        aliasField.clear();
-//        addressField.clear();
-//        addressField.sendKeys(" ");
-//        cityField.clear();
-//        cityField.sendKeys(" ");
-//        zipCodeField.clear();
-//        zipCodeField.sendKeys(" ");
-//        phoneField.clear();
-
     }
     // Sprawdź czy adres został usunięty
     public void checksIfTheAddressHasBeenDeleted() {
@@ -193,6 +195,53 @@ public class UserInfoPage {
         driver.quit();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

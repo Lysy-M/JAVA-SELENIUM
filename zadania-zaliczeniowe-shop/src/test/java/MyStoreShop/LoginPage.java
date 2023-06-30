@@ -26,12 +26,6 @@ public class LoginPage {
             WebElement signInButton = driver.findElement(By.id("submit-login"));
             signInButton.click();
 
-//            WebElement userName = driver.findElement(By.xpath("//a[@class='account']"));  //address-link
-//            userName.click();
 
     }
-
-//    public void logAs(String mail, String codersLab) {
-//
-//    }
 }

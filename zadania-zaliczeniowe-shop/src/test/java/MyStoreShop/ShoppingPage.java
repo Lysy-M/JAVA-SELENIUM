@@ -22,30 +22,42 @@ public class ShoppingPage {
         PageFactory.initElements(driver, this);
     }
 
-    @FindBy(name = "s")  // Pole szukania i wpisanie Hummingbird Printed Sweater   //xpath = "//input[@name='s']"
+    // Pole szukania i wpisanie Hummingbird Printed Sweater   //xpath = "//input[@name='s']"
+    @FindBy(name = "s")
     public WebElement searchInput;
-    @FindBy(xpath = "//a[text()='Hummingbird printed sweater']")
+
     // Kliknięcie znalezionego productu "Hummingbird Printed Sweater"
+    @FindBy(xpath = "//a[text()='Hummingbird printed sweater']")
     public WebElement brownBearInput;
+
+    // Sprawdzenie rabatu
     @FindBy(xpath = "//span[contains(@class, 'discount') and contains(@class, 'discount-percentage') and text()='Save 20%']")
-    // Sprawdzenie rabaru
     public WebElement discountSpan;
-    @FindBy(xpath = "//li[contains(@class, 'product-flag') and text()='-20%']")    // Sprawdzenie rabaru
+    // Sprawdzenie rabatu
+    @FindBy(xpath = "//li[contains(@class, 'product-flag') and text()='-20%']")
     public WebElement discount20;
-    @FindBy(xpath = "//select[@id='group_1']")  // Element rozmiaru
+    // Wybór rozmiaru
+    @FindBy(xpath = "//select[@id='group_1']")
     public WebElement sizeDropdown;
-    @FindBy(xpath = "//input[@id='quantity_wanted']") // Wybór ilości
+    // Wybór ilości
+    @FindBy(xpath = "//input[@id='quantity_wanted']")
     public static WebElement quantityInput;
+    // Przejście do kasy
     @FindBy(xpath = "//a[@class='btn btn-primary' and text()='Proceed to checkout']")
     public WebElement checkoutButton;
+    // Potwierdzenie adresu
     @FindBy(xpath = "//button[@name='confirm-addresses']")
     public WebElement confirmAddress;
+    // Adres dostawy
     @FindBy(xpath = "//div[@class='address']")
     public WebElement addressDelivery;
+    // Metoda odbioru
     @FindBy(xpath = "//button[@class='continue btn btn-primary float-xs-right' and @name='confirmDeliveryOption']")
     public WebElement continuePickup;
+    // Opcja płatności
     @FindBy(id = "payment-option-1")
     public WebElement paymentSelect;
+    // Boc I agree
     @FindBy(id = "conditions_to_approve[terms-and-conditions]")
     public WebElement IagreeBox;
     @FindBy(xpath = "//label[@class='js-terms']")
@@ -55,39 +67,36 @@ public class ShoppingPage {
     @FindBy(xpath = "//span[@class='hidden-sm-down']")
     public WebElement nameButton;
 
-    // Konstruktor
-    public void LoginPage(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
+    // Metody
+    public void iSearchTheProduct(String searchPhrase) {
 
-    }
-
-    public void iSearchTheProduct() {
         // Sprawdzenie czy przycisk jest aktywny
         boolean isEnabled = searchInput.isEnabled();
-        System.out.println("Przycisk jest aktywny: " + isEnabled);
+        System.out.println("The button is enabled: " + isEnabled); // Przycisk jest aktywny
 
         // Aktywacja przycisku, jeśli jest nieaktywny
         if (!isEnabled) {
             Actions actions = new Actions(driver);
             actions.moveToElement(searchInput).click().perform();
             actions.moveToElement(searchInput).click().sendKeys(searchPhrase).sendKeys(Keys.ENTER).perform();
+
         }
         // Wyszukiwanie i wybór produktu Hummingbird Printed Sweater
-
         searchInput.sendKeys("Hummingbird Printed Sweater");
         searchInput.sendKeys(Keys.ENTER);
         brownBearInput.click();
     }
+    // Kliknięcie w odnaleziony produkt i sprawdzenie rabatu
+    public void iCheckIfThereIsADiscountOnIt(int discountPercentage) throws InterruptedException {
+        Thread.sleep(500);
 
-    public void iCheckIfThereIsADiscountOnIt() throws InterruptedException { // Kliknięcie w odnaleziony produkt i sprawdzenie rabatu
-
-        boolean hasDiscount = discountSpan.isDisplayed(); // Sprawdź, czy na produkcie jest zniżka 20%
+        // Sprawdź, czy na produkcie jest zniżka 20%
+        boolean hasDiscount = discountSpan.isDisplayed();
 
         if (hasDiscount) {
-            System.out.println("Na tym produkcie jest zniżka 20%.");
+            System.out.println("There is a " + discountPercentage + "% discount on this product."); // Na tym produkcie jest zniżka 20%
         } else {
-            System.out.println("Na tym produkcie nie ma zniżki 20%.");
+            System.out.println("There is no " + discountPercentage + "% discount on this product."); // Na tym produkcie nie ma zniżki 20%
         }
 
         // Wykonanie animacji migania tła na czerwono
@@ -122,7 +131,6 @@ public class ShoppingPage {
     public void iChooseTheSizeAndQuantity() throws InterruptedException {
 
         // Wybór rozmiaru
-
         sizeDropdown.click();
         Thread.sleep(500);
 
@@ -141,7 +149,6 @@ public class ShoppingPage {
         }
 
         // Znalezienie elementu Quantity oraz jego kliknięcie w celu wyboru ilości produktu
-
         quantityInput.click();
         quantityInput.clear();
 
@@ -149,8 +156,9 @@ public class ShoppingPage {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         js.executeScript("arguments[0].value = '5'", quantityInput);
         quantityInput.click();
-        System.out.println("Wybór został dokonany.");
-        // Poczekaj 5 sekund
+        System.out.println("The selection has been made."); // Wybór został dokonany
+
+        // Poczekaj 5 sekund - Przechwyt wyjątku i wyświetlenie w przypadku wystąpienia wyjątku
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -161,14 +169,14 @@ public class ShoppingPage {
         quantityInput.sendKeys(Keys.ENTER);
     }
 
-    public void iClickTheOptionAndConfirmTheAddress() throws InterruptedException { // checkoutButton;
+    public void iClickTheOptionAndConfirmTheAddress(String option) throws InterruptedException { // checkoutButton;
         Thread.sleep(2000); // Opóźnienie 2 sekundy
 
         if (checkoutButton.isDisplayed() && checkoutButton.isEnabled()) {
-            System.out.println("Element is visible and enabled.");
+            System.out.println("The item is visible and enabled."); // Element jest widoczny i włączony
 
         } else {
-            System.out.println("Element is not visible or enabled.");
+            System.out.println("Item is not visible or enabled."); // Element nie jest widoczny ani włączony
 
         }
         checkoutButton.click();
@@ -176,10 +184,11 @@ public class ShoppingPage {
 
         String addressText = addressDelivery.getText();
 
-        if (addressText.contains("Gdynia")) {
-            System.out.println("Poprawność adresu została potwierdzona.");
+        if (addressText.contains("Jaskinia Wielka")) {
+//        if (addressText.contains(option)) {
+            System.out.println("The correctness of the address has been confirmed."); // Poprawność adresu została potwierdzona
         } else {
-            System.out.println("Adres nie został poprawnie potwierdzony.");
+            System.out.println("The address has not been correctly confirmed."); // Adres nie został poprawnie potwierdzony
         }
         confirmAddress.click();
     }
@@ -187,23 +196,23 @@ public class ShoppingPage {
     public void iChooseThePickupMethod(String pickupMethod) throws InterruptedException {
 
         continuePickup.click();
-        System.out.println("Wybrano metodę odbioru: " + pickupMethod);
+        System.out.println("Collection method has been selected: " + pickupMethod); // Wybrano metodę odbioru
 
     }
 
-    public void iChooseThePaymentOption() throws InterruptedException {
+    public void iChooseThePaymentOption(String pay) throws InterruptedException {
         paymentSelect.click();
-        System.out.println("Wybrano opcję płatności");
+        System.out.println("Payment option has been selected"); // Wybrano opcję płatności
 
     }
 
-    public void iClickOn() throws InterruptedException {
+    public void iClickOn(String Order) throws InterruptedException {
 
         IagreeBox.click();
 
         List<WebElement> placeOrderButton = driver.findElements(By.xpath("//button[@type='submit']"));
         placeOrderButton.get(8).click();
-        System.out.println("Select Order with an obligation to pay");
+        System.out.println("Select Order with payment obligation"); // Wybierz Zamówienie z obowiązkiem zapłaty
     }
 
     public void iTakeAScreenshotOfTheOrderConfirmationAndTheAmount() {
@@ -213,9 +222,9 @@ public class ShoppingPage {
         try {
             // Zapisz zrzut ekranu do pliku
             FileUtils.copyFile(screenshotFile, new File("screenshot.png"));
-            System.out.println("Zrzut ekranu został zapisany jako screenshot.png");
+            System.out.println("The screenshot was saved as screenshot.png"); // Zrzut ekranu został zapisany jako screenshot.png
         } catch (Exception e) {
-            System.out.println("Wystąpił błąd podczas zapisywania zrzutu ekranu: " + e.getMessage());
+            System.out.println("An error occurred while saving the screenshot: " + e.getMessage()); // Wystąpił błąd podczas zapisywania zrzutu ekranu
         }
     }
 
@@ -227,7 +236,7 @@ public class ShoppingPage {
             // Uaktywnij element
             nameButton.click();
         } else {
-            System.out.println("Element is not enabled.");
+            System.out.println("Element is not enabled."); // Element nie jest włączony
         }
         List<WebElement> NameButton = driver.findElements(By.xpath("//span[@class='hidden-sm-down']"));
         NameButton.get(0).click();
@@ -238,28 +247,39 @@ public class ShoppingPage {
 
     }
 
-    public void iCheckThatTheOrderIsListedWithTheStatus() {
+    public void iCheckThatTheOrderIsListedWithTheStatus(String Awaiting) {
 
-        // Status zamówienia
+        // Status zamówienia - czekuje na płatność czekiem
         String expectedStatus = "Awaiting check payment";
 
         // Sprawdzenie, czy zamówienie jest wymienione z oczekiwanym statusem
         WebElement orderElement = driver.findElement(By.xpath("//span[@class='label label-pill bright' and normalize-space()='" + expectedStatus + "']"));
 
-        System.out.println("Potwierdzono obecność zamówienia na liście.");
+        // Potwierdzono obecność zamówienia na liście
+        System.out.println("Confirmed the presence of the order in the list.");
     }
 
-    public void checkIfTheAmountIsTheSameAsOnTheOrder() {// Znalezienie elementu z kwotą zamówienia
+    // Znalezienie elementu z kwotą zamówienia
+    public void checkIfTheAmountIsTheSameAsOnTheOrder() {
 
         // Znalezienie elementu z kwotą zamówienia
         WebElement amountElement = driver.findElement(By.xpath("//td[contains(@class, 'text-xs-right')]"));
         String actualAmount = amountElement.getText();
 
         // Sprawdzenie, czy kwota zamówienia jest oczekiwana
-        String expectedAmount = "143.60";
+        String expectedAmount = "€143.60";                                                                              //"Alt" kod numeryczny "0128"
         System.out.println("Kwota zamówienia nie jest taka sama. Oczekiwano: " + expectedAmount + ", Rzeczywista: " + actualAmount);
     }
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -326,7 +346,41 @@ public class ShoppingPage {
 //        // wprowadź nowy tekst do elementu
 //        orderWith.sendKeys("Order with an obligation to pay");
 
+//////////////////////////////////**********************8
+//    // Zdefiniowanie selektora CSS do wyszukania elementów
+//    String cssSelector = "span.label.label-pill.bright[text()='Awaiting check payment']";
+//
+//    // Oczekiwanie na pojawienie się elementów na stronie
+//
+//    WebDriver driver = new ChromeDriver();
+//    WebDriverWait wait = new WebDriverWait(driver, 10);
+//    List<WebElement> elements = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector(cssSelector)));
+//
+//    // Iteracja przez każdy znaleziony element
+//    for {
+//    WebElement element :elements)
+//
+//
+//        // Zmiana tła elementu na niebieskie przy użyciu JavaScript
+//        JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
+//        jsExecutor.executeScript("arguments[0].setAttribute('style', 'background-color: blue')", element);
+//
+//        // Oczekiwanie na określony czas (np. 1 sekunda)
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//
+//        // Przywrócenie pierwotnego tła elementu
+//        jsExecutor.executeScript("arguments[0].removeAttribute('style')", element);
+//    }
 
+//        if (hasDiscount) {
+//            System.out.println("There is a 20% discount on this product."); // Na tym produkcie jest zniżka 20%
+//        } else {
+//            System.out.println("There is no 20% discount on this product."); // Na tym produkcie nie ma zniżki 20%
+//        }
 
 
 

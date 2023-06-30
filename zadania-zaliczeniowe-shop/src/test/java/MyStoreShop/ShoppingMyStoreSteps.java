@@ -10,41 +10,35 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 public class ShoppingMyStoreSteps {
     private static WebDriver driver;
-
-
-    private LoginPage loginPage;
     private ShoppingPage ShoppingPage;
 
+    // Metody - wywoływanie
     // Biorąc pod uwagę, że jestem zalogowany na swoje konto
     @Given("I am logged into my account") // Logowanie na stronie MyStore
     public void iAmLoggedIntoMyAccount() {
         // Inicjalizacja przeglądarki
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        loginPage = new LoginPage(driver);
-        driver.get("https://mystore-testlab.coderslab.pl/index.php?controller=authentication");         //https://mystore-testlab.coderslab.pl/index.php?controller=authentication
-        loginPage.loginAs("xqorffjbngrmdoiuyd@test.com", "CodersLab");                            //kxlywnwku@bbitf.com - alibabali
+        LoginPage loginPage = new LoginPage(driver);
+        driver.get("https://mystore-testlab.coderslab.pl/index.php?controller=authentication");                          //https://mystore-testlab.coderslab.pl/index.php?controller=authentication
+        loginPage.loginAs("xqorffjbngrmdoiuyd@test.com", "CodersLab");                                     //kxlywnwku@bbitf.com - alibabali
     }
     // Wyszukuję produkt "Sweter z nadrukiem Hummaning"
     @When("I search the product {string}")
     public void iSearchTheProduct(String searchPhrase) {
-        // Wyszukiwanie i wybór produktu
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iSearchTheProduct();
+        ShoppingPage.iSearchTheProduct(searchPhrase);
     }
     //  I sprawdzam, czy jest na niego 20% zniżki
     @And("I check if there is a {int}% discount on it")
     public void iCheckIfThereIsADiscountOnIt(int discountPercentage) throws InterruptedException {
-
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iCheckIfThereIsADiscountOnIt();
+        ShoppingPage.iCheckIfThereIsADiscountOnIt(discountPercentage);
     }
     // Wybieram rozmiar i ilość
     @And("I choose the size and quantity")
     public void iChooseTheSizeAndQuantity() throws InterruptedException {
-
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingMyStoreSteps shoppingPage;
         ShoppingPage.iChooseTheSizeAndQuantity();
 
     }
@@ -52,7 +46,7 @@ public class ShoppingMyStoreSteps {
     @And("I click the {string} option and confirm the address.")
     public void iClickTheOptionAndConfirmTheAddress(String option) throws InterruptedException {
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iClickTheOptionAndConfirmTheAddress();
+        ShoppingPage.iClickTheOptionAndConfirmTheAddress(option);
 
     }
     // Wybieram metodę odbioru "Odbiór w sklepie".
@@ -61,19 +55,18 @@ public class ShoppingMyStoreSteps {
         ShoppingPage = new ShoppingPage(driver);
         ShoppingPage.iChooseThePickupMethod(pickupMethod);
 
-
     }
     //  Wybieram opcję płatności "Zapłać czekiem".
     @And("I choose the payment option {string}")
-    public void iChooseThePaymentOption(String arg0) throws InterruptedException {
+    public void iChooseThePaymentOption(String Pay) throws InterruptedException {
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iChooseThePaymentOption();
+        ShoppingPage.iChooseThePaymentOption(Pay);
     }
     // Klikam "Zamówienie z obowiązkiem zapłaty".
     @And("I click on {string}")
-    public void iClickOn(String arg0) throws InterruptedException {
+    public void iClickOn(String order) throws InterruptedException {
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iClickOn();
+        ShoppingPage.iClickOn(order);
 
     }
     // Robię zrzut ekranu z potwierdzeniem zamówienia i kwotą.
@@ -92,9 +85,9 @@ public class ShoppingMyStoreSteps {
     }
     // Następnie sprawdzam, czy zamówienie ma status "Oczekuje na płatność czekiem".
     @Then("I check that the order is listed with the status {string}")
-    public void iCheckThatTheOrderIsListedWithTheStatus(String arg0) {
+    public void iCheckThatTheOrderIsListedWithTheStatus(String Awaiting) {
         ShoppingPage = new ShoppingPage(driver);
-        ShoppingPage.iCheckThatTheOrderIsListedWithTheStatus();
+        ShoppingPage.iCheckThatTheOrderIsListedWithTheStatus(Awaiting);
 
     }
         // Sprawdzam, czy kwota jest taka sama jak w zamówieniu.
